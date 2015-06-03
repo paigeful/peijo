@@ -1,3 +1,4 @@
+// memorization
 var fib = (function () {
     var cache = {};
     return function(n) {
@@ -20,3 +21,17 @@ var fib = (function () {
 })();
 
 console.log(fib(500));
+
+// recursion
+var fibR = (function () {
+  return function (n) {
+    if (n<=0) {
+      return 0;
+    }
+    if (n === 1) {
+      return 1;
+    }
+    return fibR(n-1) + fibR(n-2);
+  };
+})();
+console.log(fibR(6));
