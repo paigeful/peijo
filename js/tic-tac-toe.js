@@ -5,6 +5,9 @@ Based on these conditions your program should never print out a full board unles
 */
 
 
+var playerOneCount = 0;
+var playerTwoCount = 0;
+var drawCount = 0;
 var baseBoard;
 var step;
 var row;
@@ -12,14 +15,12 @@ var col;
 var count;
 var lastMove;
 var finalWinner;
-var playerOneCount = 0;
-var playerTwoCount = 0;
-var drawCount = 0;
+var start;
+var end;
 
-var start = new Date().getTime();
-
+start = new Date().getTime();
+// run program until one side win times
 while (playerOneCount < 10 && playerTwoCount < 10) {
-
     baseBoard = [[null, null, null],[null, null, null],[null, null, null]];
     count = 0;
     lastMove = [];
@@ -41,7 +42,7 @@ while (playerOneCount < 10 && playerTwoCount < 10) {
             } else {
               playerTwoCount++;
             }
-            console.log('find winner:' + getPlayer(finalWinner));
+            console.log(getPlayer(finalWinner) + ' won. Board:');
             printBoard(baseBoard);
             console.log('------');
             break;
@@ -49,18 +50,19 @@ while (playerOneCount < 10 && playerTwoCount < 10) {
         // if last game still no winner, then it's a draw
         if (i === 8) {
             drawCount++;
-            console.log('draw');
+            console.log('This will be a draw. Board:');
             printBoard(baseBoard);
             console.log('------');
         }
     }
 }
 
-console.log("playerOneCount:" + playerOneCount);
-console.log("playerTwoCount:" + playerTwoCount);
-console.log("drawCount:" + drawCount);
+// console.log("X:" + playerOneCount);
+// console.log("O:" + playerTwoCount);
+// console.log("drawCount:" + drawCount);
 
-var end = new Date().getTime();
+console.log(playerOneCount === 10 ? "X won 10 games." : "O won 10 games.");
+end = new Date().getTime();
 console.log("time consumed:" + (end-start));
 
 
