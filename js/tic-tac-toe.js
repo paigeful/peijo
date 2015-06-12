@@ -4,46 +4,87 @@ Implement an automated version of tic-tac-toe. Your program can assign random mo
 Based on these conditions your program should never print out a full board unless the final move is a game winning move. If a game is going to end in a draw just print out the board. The program should run until X or O has won 10 games, and then finally output the amount of time it took to run the simulation.
 */
 
-var baseBoard = [[null, null, null],[null, null, null],[null, null, null]];
+
+var baseBoard;
 var step;
 var row;
 var col;
-var count = 0;
+var count;
+var lastMove;
 var finalWinner;
+var playerOneCount = 0;
+var playerTwoCount = 0;
+var drawCount = 0;
 
-for (var i = 0; i < 9; i++) {
-    markBoard();
+var start = new Date().getTime();
 
-    if (i >= 4) {
-        finalWinner = findWinner(baseBoard);
-    }
-    if (finalWinner) {
-        console.log('find winner:' + getPlayer(finalWinner));
-        printBoard(baseBoard);
-        break;
-    }
+while (playerOneCount < 10 && playerTwoCount < 10) {
 
-    if (i === 8) {
-        console.log('draw');
-        printBoard(baseBoard);
+    baseBoard = [[null, null, null],[null, null, null],[null, null, null]];
+    count = 0;
+    lastMove = [];
+    finalWinner = undefined;
+
+    for (var i = 0; i < 9; i++) {
+        // make a random move
+        lastMove = markBoard();
+
+        // start looking for winner after 4th move
+        if (i >= 4) {
+            finalWinner = findWinner(baseBoard, lastMove);
+        }
+
+        // if find winner, then print out result and break loop
+        if (finalWinner !== undefined) {
+            if (finalWinner === 0) {
+              playerOneCount++;
+            } else {
+              playerTwoCount++;
+            }
+            console.log('find winner:' + getPlayer(finalWinner));
+            printBoard(baseBoard);
+            console.log('------');
+            break;
+        }
+        // if last game still no winner, then it's a draw
+        if (i === 8) {
+            drawCount++;
+            console.log('draw');
+            printBoard(baseBoard);
+            console.log('------');
+        }
     }
 }
 
+console.log("playerOneCount:" + playerOneCount);
+console.log("playerTwoCount:" + playerTwoCount);
+console.log("drawCount:" + drawCount);
+
+var end = new Date().getTime();
+console.log("time consumed:" + (end-start));
+
+
+
+
 function printBoard (board) {
-  for (var r = 0; r < 3; r++) {
-    console.log(getPlayer(board[r][0]) + '|' + getPlayer(board[r][1]) + '|' + getPlayer(board[r][2]));
-  }
+    for (var r = 0; r < 3; r++) {
+        console.log(getPlayer(board[r][0]) + '|' + getPlayer(board[r][1]) + '|' + getPlayer(board[r][2]));
+    }
 }
 
 function getPlayer (input) {
-  switch (input) {
+    var output;
+    switch (input) {
     case 0:
-      return 'X';
+        output = 'X';
+        break;
     case 1:
-      return 'O';
+        output = 'O';
+        break;
     default:
-      return ' ';
-  }
+        output = ' ';
+    }
+    return output;
 }
 
 function markBoard () {
@@ -52,20 +93,21 @@ function markBoard () {
     var col;
 
     while (true) {
-      step = makeRandomMove();
-      row = step[0];
-      col = step[1];
-      if (count >= 9) {
-        break;
-      }
-      if (baseBoard[row][col] !== null) {
-        continue;
-      } else {
-        baseBoard[row][col] = count % 2;
-        count++;
-        break;
-      }
+        step = makeRandomMove();
+        row = step[0];
+        col = step[1];
+        if (count >= 9) {
+            break;
+        }
+        if (baseBoard[row][col] !== null) {
+            continue;
+        } else {
+            baseBoard[row][col] = count % 2;
+            count++;
+            break;
+        }
     }
+    return [row, col];
 }
 
 function makeRandomMove () {
@@ -74,112 +116,82 @@ function makeRandomMove () {
 }
 
 
-function findWinner (board) {
-    var winner;
-    var j;
-    var tmp;
+function findWinner (board, lastMove) {
+    if (!lastMove) {
+        return;
+    }
 
-    // row
-    for (var n = 0; n < 3; n++) {
-        if (winner) {
-            break;
-        }
+    var row = lastMove[0];
+    var col = lastMove[1];
 
-        j = 0;
+    // test the related row and col
+    if (board[row][0] === board[row][1] && board[row][0] === board[row][2]) {
+        return board[row][0];
+    } else if (board[0][col] === board[1][col] && board[0][col] === board[2][col]) {
+        return board[0][col];
+    }
 
-        while (true) {
-            if (board[n][j] === null) {
-                break;
-            }
-            if (j === 0) {
-                tmp = board[n][j];
-            }
-            if (j >= 1) {
-                if (tmp !== board[n][j]) {
-                    break;
-                }
-                if (j === 2) {
-                    winner = board[n][j];
-                    return winner;
-                }
-            }
-            j++;
+    // test diagonal 1
+    if (row === col && board[0][0] === board[1][1] && board[0][0] === board[2][2]) {
+        return board[0][0];
+    }
+
+    // test diagonal 2
+    if ((row === col && row === 1) || Math.abs(row - col) === 2) {
+        if (board[0][2] === board[1][1] && board[0][2] === board[2][0]) {
+            return board[0][2];
         }
     }
 
-    // col
-    for (var m = 0; m < 3; m++) {
-        if (winner) {
-            break;
-        }
-
-        j = 0;
-
-        while (true) {
-            if (board[j][m] === null) {
-                break;
-            }
-            if (j === 0) {
-                tmp = board[j][m];
-            }
-            if (j >= 1) {
-                if (tmp !== board[j][m]) {
-                    break;
-                }
-                if (j === 2) {
-                    winner = board[j][m];
-                    return winner;
-                }
-            }
-            j++;
-        }
-    }
-
-    // diagonal 1
-    j = 0;
-    while (true) {
-        if (board[j][j] === null) {
-            break;
-        }
-        if (j === 0) {
-            tmp = board[j][j];
-        }
-        if (j >= 1) {
-            if (tmp !== board[j][j]) {
-                break;
-            }
-            if (j === 2) {
-                winner = board[j][j];
-                return winner;
-            }
-        }
-
-        j++;
-    }
-
-    // diagonal 2
-    j = 0;
-    while (true) {
-        if (board[j][2-j] === null) {
-            break;
-        }
-        if (j === 0) {
-            tmp = board[j][2-j];
-        }
-        if (j >= 1) {
-            if (tmp !== board[j][2-j]) {
-                break;
-            }
-            if (j === 2) {
-                winner = board[j][2-j];
-                return winner;
-            }
-        }
-
-        j++;
-    }
-
+    return;
 }
+
+function findWinner2 (board) {
+    var dia1;
+    var dia2;
+    var midRow;
+    var midCol;
+    var leftRow;
+    var topCol;
+    var rightRow;
+    var bottomRow;
+
+  // 1. from middle
+    if (board[1][1] !== null) {
+        dia1 = board[1][1] === board[0][0] && board[1][1] === board[2][2];
+        dia2 = board[1][1] === board[2][0] && board[1][1] === board[0][2];
+        midRow = board[1][1] === board[1][0] && board[1][1] === board[1][2];
+        midCol = board[1][1] === board[0][1] && board[1][1] === board[2][1];
+
+        if (dia1 || dia2 || midRow || midCol) {
+            return board[1][1];
+        }
+    }
+
+  // 2. from top left
+    if (board[0][0] !== null) {
+        leftRow = board[0][0] === board[1][0] && board[0][0] === board[2][0];
+        topCol = board[0][0] === board[0][1] && board[0][0] === board[0][2];
+
+        if (leftRow || topCol) {
+            return board[0][0];
+        }
+    }
+
+    // 3. from bottom right
+    if (board[2][2] !== null) {
+        rightRow = board[2][2] === board[0][2] && board[2][2] === board[1][2];
+        bottomRow = board[2][2] === board[2][0] && board[2][2] === board[2][1];
+
+        if (rightRow || bottomRow) {
+            return board[2][2];
+        }
+    }
+
+    return;
+}
+
+
 
 
 
