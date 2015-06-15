@@ -4,6 +4,17 @@ Implement an automated version of tic-tac-toe. Your program can assign random mo
 Based on these conditions your program should never print out a full board unless the final move is a game winning move. If a game is going to end in a draw just print out the board. The program should run until X or O has won 10 games, and then finally output the amount of time it took to run the simulation.
 */
 
+/**
+ * Solution notes:
+ * only cover the random moves (no favorism in the following solution)
+ * start from a 3*3 array, and mark all entry as null
+ * set player one -> 0
+ * set player two -> 1
+ * make the array base on player's random move
+ * determine if there is a winner from the 4th move
+ * determine if there will be a win based on the last move
+ * on the 8th move, pre-determine if this game will be a draw or player one will win
+ */
 
 var playerOneCount = 0;
 var playerTwoCount = 0;
@@ -36,7 +47,7 @@ while (playerOneCount < 10 && playerTwoCount < 10) {
             finalWinner = findWinner(baseBoard, lastMove);
         }
 
-        // one the 8th move, if there is no winner
+        // on the 8th move, if there is no winner
         // mimic the last move and determine if there will be a winner or a draw
         if (i === 7 && finalWinner === undefined) {
             blankSpot = locateBlankSpot(baseBoard);
@@ -68,10 +79,12 @@ while (playerOneCount < 10 && playerTwoCount < 10) {
     }
 }
 
-console.log(playerOneCount === 10 ? "X won 10 games." : "O won 10 games.");
 end = new Date().getTime();
+// print out the player who won 10 games and time it costs
+console.log(playerOneCount === 10 ? "X won 10 games." : "O won 10 games.");
 console.log("time consumed:" + (end-start) + 'ms');
 
+// make a move and mark on the board
 function markBoard () {
     var step;
     var row;
@@ -84,6 +97,7 @@ function markBoard () {
         if (count >= 9) {
             break;
         }
+        // only mark on the blank spots
         if (baseBoard[row][col] !== null) {
             continue;
         } else {
@@ -95,11 +109,13 @@ function markBoard () {
     return [row, col];
 }
 
+// make a random move
 function makeRandomMove () {
     var step = Math.floor(Math.random() * 9);
     return [Math.floor(step / 3), step % 3];
 }
 
+// find out the first blank spot
 function locateBlankSpot (board) {
     for (var t = 0; t < 3; t++) {
         if (baseBoard[t].indexOf(null) !== -1) {
@@ -109,12 +125,16 @@ function locateBlankSpot (board) {
     return;
 }
 
+// print out the current board
 function printBoard (board) {
     for (var r = 0; r < 3; r++) {
         console.log(getPlayer(board[r][0]) + '|' + getPlayer(board[r][1]) + '|' + getPlayer(board[r][2]));
     }
 }
 
+// print out the player nicely
+// "0" -> X
+// "1" -> O
 function getPlayer (input) {
     var output;
     switch (input) {
@@ -130,6 +150,8 @@ function getPlayer (input) {
     return output;
 }
 
+// find if there is a win base on the last move
+// if pass in "player", will mimic a move of this player on the "lastMove" spot
 function findWinner (board, lastMove, player) {
     if (!lastMove) {
         return;
